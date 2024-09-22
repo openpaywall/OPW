@@ -5,13 +5,19 @@ import { useSearchParams } from 'next/navigation';
 const ProxyPage = () => {
     const [url, setUrl] = useState<string>('');
     const [content, setContent] = useState<string>('');
-    const searchParams = useSearchParams(); // Use searchParams instead of router
+    const [isClient, setIsClient] = useState(false); // Flag to ensure client-side rendering
+    const searchParams = useSearchParams(); // useSearchParams for getting the URL
+
+    // Ensure this only runs on the client-side
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (url) {
             const encodedUrl = encodeURIComponent(url);
-            window.location.href = `/proxy?url=${encodedUrl}`; // Navigate directly using window.location
+            window.location.href = `/proxy?url=${encodedUrl}`; // Use window.location for navigation
         }
     };
 
@@ -20,7 +26,7 @@ const ProxyPage = () => {
             (encodedUrl: string) => `https://archive.ph/?run=1&url=${encodedUrl}`,
             (encodedUrl: string) => `https://web.archive.org/web/*/${encodedUrl}`,
             (encodedUrl: string) => `https://webcache.googleusercontent.com/search?q=cache:${encodedUrl}`,
-            // Add more archival sources as needed
+            // Add more archival sources if needed
         ];
 
         const fetchContent = async (encodedUrl: string) => {
@@ -39,12 +45,15 @@ const ProxyPage = () => {
             }
         };
 
-        const urlToFetch = searchParams.get('url');
-        if (urlToFetch) {
-            const encodedUrl = encodeURIComponent(urlToFetch);
-            fetchContent(encodedUrl);
+        // Ensure this only runs on the client-side after mounting
+        if (isClient) {
+            const urlToFetch = searchParams.get('url');
+            if (urlToFetch) {
+                const encodedUrl = encodeURIComponent(urlToFetch);
+                fetchContent(encodedUrl);
+            }
         }
-    }, [searchParams]);
+    }, [isClient, searchParams]);
 
     return (
         <div>
