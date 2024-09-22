@@ -1,18 +1,17 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 const ProxyPage = () => {
     const [url, setUrl] = useState<string>('');
     const [content, setContent] = useState<string>('');
-    const router = useRouter();
-    const searchParams = useSearchParams();
+    const searchParams = useSearchParams(); // Use searchParams instead of router
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (url) {
             const encodedUrl = encodeURIComponent(url);
-            router.push(`/proxy?url=${encodedUrl}`);
+            window.location.href = `/proxy?url=${encodedUrl}`; // Navigate directly using window.location
         }
     };
 
@@ -21,7 +20,7 @@ const ProxyPage = () => {
             (encodedUrl: string) => `https://archive.ph/?run=1&url=${encodedUrl}`,
             (encodedUrl: string) => `https://web.archive.org/web/*/${encodedUrl}`,
             (encodedUrl: string) => `https://webcache.googleusercontent.com/search?q=cache:${encodedUrl}`,
-            // add more sources as needed
+            // Add more archival sources as needed
         ];
 
         const fetchContent = async (encodedUrl: string) => {
