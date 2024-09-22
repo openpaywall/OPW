@@ -1,13 +1,14 @@
-"use client"; // Add this directive to mark the component as client-side
+// app/page.tsx
+"use client"; // This tells Next.js that this is a client component
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation'; // Updated to use next/navigation
 
 const FetchContentPage = () => {
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
-  const searchParams = useSearchParams();
-  const url = searchParams.get('url');
+  const searchParams = useSearchParams(); // Get the URL parameter for the input URL
+  const url = searchParams.get('url'); // Assuming you pass the URL via query param (e.g., ?url=https://...)
 
   useEffect(() => {
     if (url) {
@@ -48,5 +49,6 @@ const FetchContentPage = () => {
 };
 
 export default FetchContentPage;
+
 
 
