@@ -1,13 +1,13 @@
-// app/page.tsx
+"use client"; // Add this directive to mark the component as client-side
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 
 const FetchContentPage = () => {
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
-  const { url } = router.query;
+  const searchParams = useSearchParams();
+  const url = searchParams.get('url');
 
   useEffect(() => {
     if (url) {
@@ -48,4 +48,5 @@ const FetchContentPage = () => {
 };
 
 export default FetchContentPage;
+
 
