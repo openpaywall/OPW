@@ -1,13 +1,14 @@
-"use client"; // Mark the component as a Client Component
+"use client"; // This marks the component as a client-side component
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation'; // Updated to use next/navigation
+import { useSearchParams } from 'next/navigation';
+import React, { Suspense } from 'react';
 
 const FetchContentPage = () => {
-  const [content, setContent] = useState<string>(''); // Define state type explicitly
+  const [content, setContent] = useState<string>('');
   const [error, setError] = useState<string>('');
   const searchParams = useSearchParams();
-  const url = searchParams.get('url'); // Get the URL parameter for the input URL
+  const url = searchParams.get('url');
 
   useEffect(() => {
     if (url) {
@@ -15,7 +16,6 @@ const FetchContentPage = () => {
     }
   }, [url]);
 
-  // Define the 'url' parameter as type 'string'
   const fetchContent = async (url: string) => {
     try {
       const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
@@ -38,17 +38,20 @@ const FetchContentPage = () => {
       </header>
 
       <main>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <div
-          dangerouslySetInnerHTML={{ __html: content }}
-          style={{ padding: '20px', border: '1px solid #ccc' }}
-        />
+        <Suspense fallback={<div>Loading...</div>}>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          <div
+            dangerouslySetInnerHTML={{ __html: content }}
+            style={{ padding: '20px', border: '1px solid #ccc' }}
+          />
+        </Suspense>
       </main>
     </div>
   );
 };
 
 export default FetchContentPage;
+
 
 
 
