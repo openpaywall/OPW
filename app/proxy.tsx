@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const ProxyPage = () => {
     const [url, setUrl] = useState<string>('');
     const [content, setContent] = useState<string>('');
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -39,12 +40,12 @@ const ProxyPage = () => {
             }
         };
 
-        const urlToFetch = Array.isArray(router.query.url) ? router.query.url[0] : router.query.url;
-        if (urlToFetch && typeof urlToFetch === 'string') {
+        const urlToFetch = searchParams.get('url');
+        if (urlToFetch) {
             const encodedUrl = encodeURIComponent(urlToFetch);
             fetchContent(encodedUrl);
         }
-    }, [router.query.url]);
+    }, [searchParams]);
 
     return (
         <div>
