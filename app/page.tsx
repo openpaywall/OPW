@@ -1,57 +1,80 @@
-"use client"; // Make sure the page is entirely client-side
+"use client";
+import { useState } from "react";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Changed to next/navigation
+const Page = () => {
+  const [url, setUrl] = useState("");
+  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-const FetchContentPage = () => {
-  const router = useRouter(); // Use the router only client-side
-  const [content, setContent] = useState<string>('');
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    const url = new URLSearchParams(window.location.search).get('url');
-    if (url) {
-      fetchContent(url);
+  const fetchContent = async () => {
+    if (!url) {
+      setError("Please enter a valid URL.");
+      return;
     }
-  }, []);
 
-  const fetchContent = async (url: string) => {
+    setError("");
+    setLoading(true);
+
     try {
-      const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
-      if (response.ok) {
-        const htmlContent = await response.text();
-        setContent(htmlContent);
+      // Encode the URL and use archival sources
+      const encodedUrl = encodeURIComponent(url);
+      const sources = [
+        `https://archive.ph/?run=1&url=${encodedUrl}`,
+        `https://web.archive.org/web/*/${encodedUrl}`,
+        `https://webcache.googleusercontent.com/search?q=cache:${encodedUrl}`,
+        `https://www.bing.com/cache.aspx?q=${encodedUrl}`,
+        `https://archive.org/web/*/${encodedUrl}`
+      ];
+
+      // Iterate through sources until content is fetched
+      let fetchedContent = "";
+      for (let source of sources) {
+        const response = await fetch(source);
+        if (response.ok) {
+          fetchedContent = await response.text();
+          break;
+        }
+      }
+
+      if (!fetchedContent) {
+        setError("Failed to fetch content from archival sources.");
       } else {
-        setError('Failed to fetch content');
+        setContent(fetchedContent);
       }
     } catch (err) {
-      setError('Error occurred while fetching content');
+      setError("An error occurred while fetching the content.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <header>
-        <h1>Open Paywall</h1>
-        <p>Fetching content from archives...</p>
-      </header>
+    <div style={{ padding: "20px" }}>
+      <h1>Open Paywall</h1>
+      <input
+        type="text"
+        placeholder="Enter URL"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        style={{ padding: "10px", width: "100%", marginBottom: "10px" }}
+      />
+      <button onClick={fetchContent} style={{ padding: "10px" }}>
+        Fetch Content
+      </button>
 
-      <main>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <div
-          dangerouslySetInnerHTML={{ __html: content }}
-          style={{ padding: '20px', border: '1px solid #ccc' }}
-        />
-      </main>
+      {loading && <p>Loading content...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* Render fetched content */}
+      {content && (
+        <div>
+          <h2>Fetched Content</h2>
+          <div dangerouslySetInnerHTML={{ __html: content }} />
+        </div>
+      )}
     </div>
   );
 };
 
-export default FetchContentPage;
-
-
-
-
-
-
-
+export default Page;
