@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const ProxyPage = () => {
@@ -44,7 +44,7 @@ const ProxyPage = () => {
             }
         };
 
-        // Fix for url type issue
+        // Handle url safely
         const urlToFetch = Array.isArray(router.query.url) ? router.query.url[0] : router.query.url;
         if (urlToFetch) {
             const encodedUrl = encodeURIComponent(urlToFetch);
