@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const ProxyPage = () => {
     const [url, setUrl] = useState<string>('');
@@ -20,12 +20,7 @@ const ProxyPage = () => {
             (encodedUrl: string) => `https://archive.ph/?run=1&url=${encodedUrl}`,
             (encodedUrl: string) => `https://web.archive.org/web/*/${encodedUrl}`,
             (encodedUrl: string) => `https://webcache.googleusercontent.com/search?q=cache:${encodedUrl}`,
-            (encodedUrl: string) => `https://www.bing.com/cache.aspx?q=${encodedUrl}`,
-            (encodedUrl: string) => `https://archive.is/?run=1&url=${encodedUrl}`,
-            (encodedUrl: string) => `https://www.pagepeeker.com/peeker.php?url=${encodedUrl}`,
-            (encodedUrl: string) => `https://screenshotmachine.com/?url=${encodedUrl}`,
-            (encodedUrl: string) => `http://www.webcitation.org/query?url=${encodedUrl}`,
-            (encodedUrl: string) => `https://perma.cc/${encodedUrl}`
+            // add more sources as needed
         ];
 
         const fetchContent = async (encodedUrl: string) => {
@@ -44,7 +39,6 @@ const ProxyPage = () => {
             }
         };
 
-        // Handle url safely
         const urlToFetch = Array.isArray(router.query.url) ? router.query.url[0] : router.query.url;
         if (urlToFetch && typeof urlToFetch === 'string') {
             const encodedUrl = encodeURIComponent(urlToFetch);
