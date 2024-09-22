@@ -30,7 +30,6 @@ const ProxyPage = () => {
     useEffect(() => {
         const fetchContent = async (encodedUrl: string) => {
             try {
-                // Loop through all sources to fetch content from one of them
                 for (let i = 0; i < archivalSources.length; i++) {
                     const sourceUrl = archivalSources[i](encodedUrl);
                     const response = await fetch(`/api/proxy?url=${sourceUrl}`);
@@ -46,11 +45,12 @@ const ProxyPage = () => {
         };
 
         const { query } = router;
-        if (query.url) {
-            const encodedUrl = query.url as string;
+        const urlToFetch = Array.isArray(query.url) ? query.url[0] : query.url;  // Ensure url is a string
+        if (urlToFetch) {
+            const encodedUrl = urlToFetch as string;
             fetchContent(encodedUrl);
         }
-    }, [router.query.url]);
+    }, [router.query.url, archivalSources, router]);
 
     return (
         <div>
@@ -73,4 +73,3 @@ const ProxyPage = () => {
 };
 
 export default ProxyPage;
-
