@@ -1,19 +1,18 @@
-"use client";  // This ensures the code runs client-side
+"use client";  // Ensure this page is client-side only
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 const ProxyPage = () => {
     const [url, setUrl] = useState<string>('');
     const [content, setContent] = useState<string>('');
-    const searchParams = useSearchParams(); // Get URL search parameters
+    const searchParams = useSearchParams();  // Get URL parameters
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (url) {
             const encodedUrl = encodeURIComponent(url);
-            // Trigger a client-side redirect
-            window.location.href = `/proxy?url=${encodedUrl}`;
+            window.location.href = `/proxy?url=${encodedUrl}`;  // Client-side routing
         }
     };
 
@@ -26,8 +25,8 @@ const ProxyPage = () => {
 
         const fetchContent = async (encodedUrl: string) => {
             try {
-                for (let i = 0; i < archivalSources.length; i++) {
-                    const sourceUrl = archivalSources[i](encodedUrl);
+                for (const source of archivalSources) {
+                    const sourceUrl = source(encodedUrl);
                     const response = await fetch(`/api/proxy?url=${sourceUrl}`);
                     if (response.ok) {
                         const fetchedContent = await response.text();
@@ -40,7 +39,6 @@ const ProxyPage = () => {
             }
         };
 
-        // Only run on the client-side
         if (typeof window !== 'undefined') {
             const urlToFetch = searchParams.get('url');
             if (urlToFetch) {
