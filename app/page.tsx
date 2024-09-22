@@ -1,14 +1,13 @@
-"use client"; // This marks the component as a client-side component
+"use client"; // Ensure this is a client-side component
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import React, { Suspense } from 'react';
+import { useRouter } from 'next/router'; // Changed to useRouter
 
 const FetchContentPage = () => {
+  const router = useRouter();
   const [content, setContent] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const searchParams = useSearchParams();
-  const url = searchParams.get('url');
+  const url = router.query.url as string; // Capture URL query from router
 
   useEffect(() => {
     if (url) {
@@ -38,19 +37,18 @@ const FetchContentPage = () => {
       </header>
 
       <main>
-        <Suspense fallback={<div>Loading...</div>}>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          <div
-            dangerouslySetInnerHTML={{ __html: content }}
-            style={{ padding: '20px', border: '1px solid #ccc' }}
-          />
-        </Suspense>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <div
+          dangerouslySetInnerHTML={{ __html: content }}
+          style={{ padding: '20px', border: '1px solid #ccc' }}
+        />
       </main>
     </div>
   );
 };
 
 export default FetchContentPage;
+
 
 
 
