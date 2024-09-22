@@ -44,9 +44,10 @@ const ProxyPage = () => {
             }
         };
 
+        // Fix for url type issue
         const urlToFetch = Array.isArray(router.query.url) ? router.query.url[0] : router.query.url;
         if (urlToFetch) {
-            const encodedUrl = encodeURIComponent(urlToFetch as string);
+            const encodedUrl = encodeURIComponent(urlToFetch);
             fetchContent(encodedUrl);
         }
     }, [router.query.url]);
