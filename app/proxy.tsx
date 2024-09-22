@@ -1,23 +1,19 @@
-"use client";
+"use client";  // This ensures the code runs client-side
+
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 const ProxyPage = () => {
     const [url, setUrl] = useState<string>('');
     const [content, setContent] = useState<string>('');
-    const [isClient, setIsClient] = useState(false); // Flag to ensure client-side rendering
-    const searchParams = useSearchParams(); // useSearchParams for getting the URL
-
-    // Ensure this only runs on the client-side
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+    const searchParams = useSearchParams(); // Get URL search parameters
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (url) {
             const encodedUrl = encodeURIComponent(url);
-            window.location.href = `/proxy?url=${encodedUrl}`; // Use window.location for navigation
+            // Trigger a client-side redirect
+            window.location.href = `/proxy?url=${encodedUrl}`;
         }
     };
 
@@ -26,7 +22,6 @@ const ProxyPage = () => {
             (encodedUrl: string) => `https://archive.ph/?run=1&url=${encodedUrl}`,
             (encodedUrl: string) => `https://web.archive.org/web/*/${encodedUrl}`,
             (encodedUrl: string) => `https://webcache.googleusercontent.com/search?q=cache:${encodedUrl}`,
-            // Add more archival sources if needed
         ];
 
         const fetchContent = async (encodedUrl: string) => {
@@ -45,15 +40,15 @@ const ProxyPage = () => {
             }
         };
 
-        // Ensure this only runs on the client-side after mounting
-        if (isClient) {
+        // Only run on the client-side
+        if (typeof window !== 'undefined') {
             const urlToFetch = searchParams.get('url');
             if (urlToFetch) {
                 const encodedUrl = encodeURIComponent(urlToFetch);
                 fetchContent(encodedUrl);
             }
         }
-    }, [isClient, searchParams]);
+    }, [searchParams]);
 
     return (
         <div>
