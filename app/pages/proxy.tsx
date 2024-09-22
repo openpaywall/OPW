@@ -1,23 +1,11 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 
 const ProxyPage = () => {
     const [url, setUrl] = useState<string>('');
     const [content, setContent] = useState<string>('');
     const router = useRouter();
-
-    const archivalSources = [
-        (encodedUrl: string) => `https://archive.ph/?run=1&url=${encodedUrl}`,
-        (encodedUrl: string) => `https://web.archive.org/web/*/${encodedUrl}`,
-        (encodedUrl: string) => `https://webcache.googleusercontent.com/search?q=cache:${encodedUrl}`,
-        (encodedUrl: string) => `https://www.bing.com/cache.aspx?q=${encodedUrl}`,
-        (encodedUrl: string) => `https://archive.is/?run=1&url=${encodedUrl}`,
-        (encodedUrl: string) => `https://www.pagepeeker.com/peeker.php?url=${encodedUrl}`,
-        (encodedUrl: string) => `https://screenshotmachine.com/?url=${encodedUrl}`,
-        (encodedUrl: string) => `http://www.webcitation.org/query?url=${encodedUrl}`,
-        (encodedUrl: string) => `https://perma.cc/${encodedUrl}`, // Perma as suggested addition
-    ];
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -28,6 +16,18 @@ const ProxyPage = () => {
     };
 
     useEffect(() => {
+        const archivalSources = [
+            (encodedUrl: string) => `https://archive.ph/?run=1&url=${encodedUrl}`,
+            (encodedUrl: string) => `https://web.archive.org/web/*/${encodedUrl}`,
+            (encodedUrl: string) => `https://webcache.googleusercontent.com/search?q=cache:${encodedUrl}`,
+            (encodedUrl: string) => `https://www.bing.com/cache.aspx?q=${encodedUrl}`,
+            (encodedUrl: string) => `https://archive.is/?run=1&url=${encodedUrl}`,
+            (encodedUrl: string) => `https://www.pagepeeker.com/peeker.php?url=${encodedUrl}`,
+            (encodedUrl: string) => `https://screenshotmachine.com/?url=${encodedUrl}`,
+            (encodedUrl: string) => `http://www.webcitation.org/query?url=${encodedUrl}`,
+            (encodedUrl: string) => `https://perma.cc/${encodedUrl}`
+        ];
+
         const fetchContent = async (encodedUrl: string) => {
             try {
                 for (let i = 0; i < archivalSources.length; i++) {
@@ -44,13 +44,12 @@ const ProxyPage = () => {
             }
         };
 
-        const { query } = router;
-        const urlToFetch = Array.isArray(query.url) ? query.url[0] : query.url;  // Ensure url is a string
+        const urlToFetch = Array.isArray(router.query.url) ? router.query.url[0] : router.query.url;
         if (urlToFetch) {
-            const encodedUrl = urlToFetch as string;
+            const encodedUrl = encodeURIComponent(urlToFetch as string);
             fetchContent(encodedUrl);
         }
-    }, [router.query.url, archivalSources, router]);
+    }, [router.query.url]);
 
     return (
         <div>
