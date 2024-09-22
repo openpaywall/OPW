@@ -1,14 +1,13 @@
-// app/page.tsx
-"use client"; // This tells Next.js that this is a client component
+"use client"; // Mark the component as a Client Component
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation'; // Updated to use next/navigation
 
 const FetchContentPage = () => {
-  const [content, setContent] = useState('');
-  const [error, setError] = useState('');
-  const searchParams = useSearchParams(); // Get the URL parameter for the input URL
-  const url = searchParams.get('url'); // Assuming you pass the URL via query param (e.g., ?url=https://...)
+  const [content, setContent] = useState<string>(''); // Define state type explicitly
+  const [error, setError] = useState<string>('');
+  const searchParams = useSearchParams();
+  const url = searchParams.get('url'); // Get the URL parameter for the input URL
 
   useEffect(() => {
     if (url) {
@@ -16,7 +15,8 @@ const FetchContentPage = () => {
     }
   }, [url]);
 
-  const fetchContent = async (url) => {
+  // Define the 'url' parameter as type 'string'
+  const fetchContent = async (url: string) => {
     try {
       const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
       if (response.ok) {
@@ -49,6 +49,7 @@ const FetchContentPage = () => {
 };
 
 export default FetchContentPage;
+
 
 
 
