@@ -1,19 +1,19 @@
-"use client"; // Ensure this is a client-side component
+"use client"; // Make sure the page is entirely client-side
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router'; // Changed to useRouter
+import { useRouter } from 'next/navigation'; // Changed to next/navigation
 
 const FetchContentPage = () => {
-  const router = useRouter();
+  const router = useRouter(); // Use the router only client-side
   const [content, setContent] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const url = router.query.url as string; // Capture URL query from router
 
   useEffect(() => {
+    const url = new URLSearchParams(window.location.search).get('url');
     if (url) {
       fetchContent(url);
     }
-  }, [url]);
+  }, []);
 
   const fetchContent = async (url: string) => {
     try {
@@ -48,6 +48,7 @@ const FetchContentPage = () => {
 };
 
 export default FetchContentPage;
+
 
 
 
