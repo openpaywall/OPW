@@ -1,36 +1,59 @@
-"use client"; // Ensures this is a client-side component
+"use client";
 
-import { useEffect, useState } from 'react';
-import { fetchWithTimeout } from '../../lib/fetch-with-timeout';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from "react";
 
 export default function ProxyPage() {
   const [content, setContent] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-  const url = searchParams.get('url');
+  const [url, setUrl] = useState<string>("");
+
+  const fetchContent = async (url: string) => {
+    try {
+      const response = await fetch(`/api/fetch-content?url=${encodeURIComponent(url)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setContent(data);
+      } else {
+        setContent("Error fetching content");
+      }
+    } catch (error) {
+      setContent("An error occurred");
+    }
+  };
 
   useEffect(() => {
     if (url) {
-      fetchWithTimeout(url)
-        .then((data) => setContent(data))
-        .catch((err) => setError("Failed to fetch the content. Please try again later."));
+      fetchContent(url);
     }
   }, [url]);
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUrl(event.target.value);
+  };
 
-  if (!content) {
-    return <div>Loading content...</div>;
-  }
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    fetchContent(url);
+  };
 
   return (
     <div>
-      <h1>Fetched Content</h1>
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={url}
+          onChange={handleInputChange}
+          placeholder="Enter URL"
+        />
+        <button type="submit">Fetch Content</button>
+      </form>
+      {content ? (
+        <div>
+          <h2>Fetched Content</h2>
+          <p>{content}</p>
+        </div>
+      ) : (
+        <p>No content fetched yet</p>
+      )}
     </div>
   );
 }
-
