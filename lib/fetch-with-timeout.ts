@@ -1,39 +1,22 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+export async function fetchWithTimeout(url: string, timeout: number = 5000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
 
-const FetchPage = () => {
-  const router = useRouter();
-  const { url } = router.query;
-  const [content, setContent] = useState(null);
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      signal: controller.signal,
+    });
 
-  useEffect(() => {
-    if (url) {
-      const fetchContent = async () => {
-        try {
-          const response = await fetch(`/api/fetch?url=${encodeURIComponent(url)}`);
-          const data = await response.json();
-          setContent(data);
-        } catch (error) {
-          console.error('Error fetching content:', error);
-        }
-      };
-
-      fetchContent();
+    if (!response.ok) {
+      throw new Error(`Failed to fetch content: ${response.statusText}`);
     }
-  }, [url]);
 
-  if (!content) {
-    return <div>Loading...</div>;
+    return await response.text();
+  } catch (error) {
+    console.error("Error fetching content:", error);
+    throw error;
+  } finally {
+    clearTimeout(id);
   }
-
-  return (
-    <div>
-      <h1>{content.title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: content.body }} />
-    </div>
-  );
-};
-
-export default FetchPage;
-
-
+}
