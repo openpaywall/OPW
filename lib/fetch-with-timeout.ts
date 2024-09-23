@@ -1,22 +1,17 @@
-export async function fetchWithTimeout(url: string, timeout: number = 5000) {
+export async function fetchWithTimeout(url: string, timeout: number = 10000) {
   const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
+  const signal = controller.signal;
+
+  const fetchTimeout = setTimeout(() => {
+    controller.abort();
+  }, timeout);
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch content: ${response.statusText}`);
-    }
-
-    return await response.text();
+    const response = await fetch(url, { signal });
+    clearTimeout(fetchTimeout);
+    return response.text(); // returning the body text
   } catch (error) {
-    console.error("Error fetching content:", error);
-    throw error;
-  } finally {
-    clearTimeout(id);
+    clearTimeout(fetchTimeout);
+    throw new Error("Fetch timed out or failed");
   }
 }
