@@ -1,33 +1,33 @@
-"use client"; // Ensures this is a client-side component
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Replace next/router with next/navigation
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState<string>("");
   const router = useRouter();
 
-  const handleFetch = (event: React.FormEvent) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUrl(event.target.value);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (url) {
-      router.push(`/proxy?url=${encodeURIComponent(url)}`);
-    }
+    router.push(`/proxy?url=${encodeURIComponent(url)}`);
   };
 
   return (
     <div>
       <h1>Welcome to OpenPaywall</h1>
-      <form onSubmit={handleFetch}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Enter a URL"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={handleInputChange}
+          placeholder="Enter URL to fetch content"
         />
         <button type="submit">Fetch Content</button>
       </form>
     </div>
   );
 }
-
-
